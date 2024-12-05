@@ -5,57 +5,101 @@
 <statement_list> ::= <statement> | <statement> <statement_list>
 
 <statement> ::= <declaration>
-               | <assignment>
-               | <input>
-               | <output>
-               | <if_statement>
-               | <case_statement>
-               | <while_loop>
-               | <for_loop>
-               | <repeat_until_loop>
-               | <procedure_call>
-               | <function_call>
-               | <file_handling>
+              | <assignment>
+              | <input>
+              | <output>
+              | <if_statement>
+              | <case_statement>
+              | <while_loop>
+              | <for_loop>
+              | <repeat_until_loop>
+              | <procedure_call>
+              | <function_call>
+              | <file_handling>
 
 <declaration> ::= "DECLARE" <identifier> ":" <data_type>
-<data_type> ::= "INTEGER" | "REAL" | "CHAR" | "STRING" | "BOOLEAN" | "ARRAY" "[" <integer> ":" <integer> "]" "OF" <data_type>
+
+<data_type> ::= "INTEGER"
+             | "REAL"
+             | "CHAR"
+             | "STRING"
+             | "BOOLEAN"
+             | "ARRAY" "[" <integer> ":" <integer> "]" "OF" <data_type>
 
 <assignment> ::= <identifier> "←" <expression>
-<expression> ::= <term> | <term> "+" <expression> | <term> "-" <expression> | <term> "*" <expression> | <term> "/" <expression>
-<term> ::= <identifier> | <literal>
-<literal> ::= <integer> | <real> | <char> | <string> | "TRUE" | "FALSE"
+
+<expression> ::= <term>
+              | <term> "+" <expression>
+              | <term> "-" <expression>
+              | <term> "*" <expression>
+              | <term> "/" <expression>
+              | "DIV" "(" <expression> "," <expression> ")"
+              | "MOD" "(" <expression> "," <expression> ")"
+
+<term> ::= <identifier>
+         | <literal>
+
+<literal> ::= <integer>
+           | <real>
+           | <char>
+           | <string>
+           | "TRUE"
+           | "FALSE"
 
 <input> ::= "INPUT" <identifier>
+
 <output> ::= "OUTPUT" <value_list>
+
 <value_list> ::= <expression> | <expression> "," <value_list>
 
 <if_statement> ::= "IF" <condition> "THEN" <statement_list> "ENDIF"
-                 | "IF" <condition> "THEN" <statement_list> "ELSE" <statement_list> "ENDIF"
+                | "IF" <condition> "THEN" <statement_list> "ELSE" <statement_list> "ENDIF"
+
 <condition> ::= <expression> <comparison_operator> <expression>
+             | <condition> "AND" <condition>
+             | <condition> "OR" <condition>
+             | "NOT" <condition>
+
 <comparison_operator> ::= "=" | "<>" | "<" | "<=" | ">" | ">="
 
 <case_statement> ::= "CASE" "OF" <identifier> <case_list> "ENDCASE"
+
 <case_list> ::= <case> | <case> <case_list>
-<case> ::= <value> ":" <statement_list> | "OTHERWISE" <statement_list>
-<value> ::= <literal>
+
+<case> ::= <value> ":" <statement_list>
+        | "OTHERWISE" <statement_list>
 
 <while_loop> ::= "WHILE" <condition> "DO" <statement_list> "ENDWHILE"
-<for_loop> ::= "FOR" <identifier> "←" <integer> "TO" <integer> [ "STEP" <integer> ] <statement_list> "NEXT" <identifier>
+
+<for_loop> ::= "FOR" <identifier> "←" <integer> "TO" <integer> ["STEP" <integer>] <statement_list> "NEXT" <identifier>
+
 <repeat_until_loop> ::= "REPEAT" <statement_list> "UNTIL" <condition>
 
-<procedure_call> ::= "CALL" <identifier> [ "(" <argument_list> ")" ]
+<procedure_call> ::= "CALL" <identifier> ["(" <argument_list> ")"]
+
 <argument_list> ::= <expression> | <expression> "," <argument_list>
 
-<function_call> ::= <identifier> "(" <argument_list> ")"
+<function_call> ::= "LENGTH" "(" <identifier> ")"
+                 | "LCASE" "(" <identifier> ")"
+                 | "UCASE" "(" <identifier> ")"
+                 | "SUBSTRING" "(" <identifier> "," <expression> "," <expression> ")"
+                 | "ROUND" "(" <expression> "," <expression> ")"
+                 | "RANDOM" "()"
 
 <file_handling> ::= "OPENFILE" <string> "FOR" <file_mode>
-                   | "READFILE" <string> "," <identifier>
-                   | "WRITEFILE" <string> "," <identifier>
-                   | "CLOSEFILE" <string>
+                 | "READFILE" <string> "," <identifier>
+                 | "WRITEFILE" <string> "," <identifier>
+                 | "CLOSEFILE" <string>
+
 <file_mode> ::= "READ" | "WRITE"
 
 <identifier> ::= <letter> { <letter> | <digit> }
+
 <integer> ::= <digit> { <digit> }
+
 <real> ::= <integer> "." <integer>
+
 <char> ::= "'" <any_character> "'"
-<string> ::= "\"" { <any_character> } "\""
+
+<string> ::= '"' { <any_character> } '"'
+
