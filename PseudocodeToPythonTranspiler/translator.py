@@ -121,6 +121,90 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
 
             return f"#Unsupported cast: {ctx.getText()}"
 
+    def visitExpression(self, ctx):
+        return self.visit(ctx.additionExpression())
+
+    def visitReturn_statement(self, ctx):
+
+        return_value = self.visit(ctx.expression())
+        return f"return {return_value}"
+
+    def visitComment_statement(self, ctx):
+
+        if ctx.ONE_LINE_COMMENT():
+            comment_text = ctx.ONE_LINE_COMMENT().getText().lstrip("//")
+            return f"# {comment_text.strip()}"
+
+        if ctx.MULTIPLE_LINE_COMMENT():
+
+            comment_text = (
+                ctx.MULTIPLE_LINE_COMMENT().getText().strip("***").strip("***")
+            )
+
+            lines = comment_text.splitlines()
+
+            return f'"""' + "\n".join([line.strip() for line in lines]) + "\n" + '"""'
+
+        return f"# Unknown comment type"
+
+    def visitAdditionExpression(self, ctx):
+
+        if ctx.getChildCount() == 1:
+            return self.visit(ctx.multiplicationExpression())
+
+        left = self.visit(ctx.additionExpression())
+        op = ctx.getChild(1).getText()
+        right = self.visit(ctx.multiplicationExpression())
+
+        return f"({left} {op} {right})"
+
+    def visitMultiplicationExpression(self, ctx):
+
+        if ctx.getChildCount() == 1:
+            return self.visit(ctx.primaryExpression())
+
+        left = self.visit(ctx.multiplicationExpression())
+        op = ctx.getChild(1).getText()
+        right = self.visit(ctx.primaryExpression())
+
+        return f"({left} {op} {right})"
+
+    def visitPrimaryExpression(self, ctx):
+
+        if hasattr(ctx, "cast") and ctx.cast():
+
+            return self.visit(ctx.cast())
+
+        if ctx.term():
+            return self.visit(ctx.term())
+
+        if ctx.file_handling():
+            return "".join(self.visit(ctx.file_handling()).split(" ")[2:])
+
+        elif ctx.IDENTIFIER() and ctx.LBRACKET() and ctx.RBRACKET():  # Array access
+            identifier = ctx.IDENTIFIER().getText()
+            index = self.visit(ctx.expression(0))
+            return f"{identifier}[{index}]"
+
+        if ctx.getChildCount() == 6:
+            func = ctx.getChild(0).getText()
+            left = self.visit(ctx.expression(0))
+            right = self.visit(ctx.expression(1))
+            if func == "DIV":
+                return f"({left} // {right})"
+            elif func == "MOD":
+                return f"({left} % {right})"
+
+        if ctx.LPAREN() and ctx.RPAREN():
+
+            if isinstance(ctx.expression(), list) and len(ctx.expression()) > 0:
+                nested = self.visit(ctx.expression(0))
+            else:
+                nested = self.visit(ctx.expression())
+            return f"({nested})"
+
+        return f"# Unsupported primary expression: {ctx.getText()} "
+
 
 def translate_pseudocode_to_python(input_file, output_file):
 
