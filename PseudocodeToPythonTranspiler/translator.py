@@ -289,8 +289,42 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
             return f"{left} {python_op} {right}"
 
         condition_text = ctx.getText()
-        print(f"Error: Unsupported condition: {condition_text}")
+
         return f"# Unsupported condition: {condition_text}"
+
+    def visitCase_statement(self, ctx):
+        variable = ctx.IDENTIFIER().getText()
+        case_blocks = []
+
+        self.indent_level += 1
+        for case_ctx in ctx.case_list().case():
+            if case_ctx.literal():
+                case_value = self.visit(case_ctx.literal())
+
+                self.indent_level += 1
+                statements = "\n".join(
+                    [
+                        self.indent() + self.visit(stmt)
+                        for stmt in case_ctx.statement_list().statement()
+                    ]
+                )
+                self.indent_level -= 1
+                case_blocks.append(f"{self.indent()}case {case_value}:\n{statements}")
+            elif case_ctx.OTHERWISE():
+                self.indent_level += 1
+                statements = "\n".join(
+                    [
+                        self.indent() + self.visit(stmt)
+                        for stmt in case_ctx.statement_list().statement()
+                    ]
+                )
+                self.indent_level -= 1
+                case_blocks.append(f"{self.indent()}case _:\n{statements}")
+
+        self.indent_level -= 1
+
+        match_code = f"{self.indent()}match {variable}:\n" + "\n".join(case_blocks)
+        return match_code
 
 
 def translate_pseudocode_to_python(input_file, output_file):
