@@ -361,6 +361,60 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
         else:
             return f"{var_name} = input('Enter data: ')"
 
+    def visitWhile_loop(self, ctx):
+
+        condition = self.visit(ctx.condition())
+        self.indent_level += 1
+        body = "\n".join(
+            [
+                self.indent() + self.visit(stmt)
+                for stmt in ctx.statement_list().statement()
+            ]
+        )
+        self.indent_level -= 1
+        return f"while {condition}:\n{body}"
+
+    def visitFor_loop(self, ctx):
+
+        try:
+
+            var_name = ctx.IDENTIFIER(0).getText()
+            start = self.visit(ctx.expression(0))
+            end = self.visit(ctx.expression(1))
+            step = self.visit(ctx.expression(2)) if ctx.STEP() else None
+
+            range_exp = f"{start}, {end}" + (f", {step}" if step else "")
+
+            self.indent_level += 1
+
+            body = "\n".join(
+                [
+                    self.indent() + self.visit(stmt)
+                    for stmt in ctx.statement_list().statement()
+                ]
+            )
+            self.indent_level -= 1
+
+            return f"for {var_name} in range({range_exp}):\n{body}"
+        except Exception as e:
+
+            return f"# Error in visitFor_loop: {e} "
+
+    def visitRepeat_until_loop(self, ctx):
+
+        self.indent_level += 1
+        body = "\n".join(
+            [
+                self.indent() + self.visit(stmt)
+                for stmt in ctx.statement_list().statement()
+            ]
+        )
+        self.indent_level -= 1
+        condition = self.visit(ctx.condition())
+        return f"while True:\n{body}\n{self.indent()}if {condition}:\n{self.indent()}    break"
+
+
+
 
 def translate_pseudocode_to_python(input_file, output_file):
 
