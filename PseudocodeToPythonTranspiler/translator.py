@@ -235,6 +235,63 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
 
         return f"# Unsupported literal: {ctx.getText()}"
 
+    def visitIf_statement(self, ctx):
+
+        condition = self.visit(ctx.condition())
+
+        self.indent_level += 1
+        then_block = "\n".join(
+            [
+                self.indent() + self.visit(stmt)
+                for stmt in ctx.statement_list(0).statement()
+            ]
+        )
+        self.indent_level -= 1
+
+        if ctx.ELSE():
+            self.indent_level += 1
+            else_block = "\n".join(
+                [
+                    self.indent() + self.visit(stmt)
+                    for stmt in ctx.statement_list(1).statement()
+                ]
+            )
+            self.indent_level -= 1
+            return f"if {condition}:\n{then_block}\n{self.indent()}else:\n{else_block}"
+        else:
+            return f"if {condition}:\n{then_block}"
+
+    def visitCondition(self, ctx):
+
+        if ctx.LPAREN():
+            inner_condition = self.visit(ctx.condition(0))
+            return f"({inner_condition})"
+
+        if ctx.NOT():
+            inner_condition = self.visit(ctx.condition(0))
+            return f"not {inner_condition}"
+
+        if ctx.AND():
+            left = self.visit(ctx.condition(0))
+            right = self.visit(ctx.condition(1))
+            return f"({left} and {right})"
+
+        if ctx.OR():
+            left = self.visit(ctx.condition(0))
+            right = self.visit(ctx.condition(1))
+            return f"({left} or {right})"
+
+        if ctx.comparison_operator():
+            left = self.visit(ctx.expression(0))
+            op = ctx.comparison_operator().getText()
+            python_op = {"=": "==", "<>": "!="}.get(op, op)
+            right = self.visit(ctx.expression(1))
+            return f"{left} {python_op} {right}"
+
+        condition_text = ctx.getText()
+        print(f"Error: Unsupported condition: {condition_text}")
+        return f"# Unsupported condition: {condition_text}"
+
 
 def translate_pseudocode_to_python(input_file, output_file):
 
