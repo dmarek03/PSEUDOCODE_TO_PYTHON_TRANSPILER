@@ -1,0 +1,22 @@
+DECLARE Limit: INTEGER
+
+INPUT Limit
+
+DECLARE IsPrime : ARRAY[Limit] OF BOOLEAN
+
+FOR Number ← 2 TO Limit
+    IsPrime[Number] ← TRUE
+NEXT Number
+
+FOR Number ← 2 TO Limit
+    IF IsPrime[Number] = TRUE
+      THEN
+
+        OUTPUT Number
+
+
+        FOR Multiple ← 2 TO DIV(Limit, Number)
+            IsPrime[Number * Multiple] ← FALSE
+        NEXT Multiple
+    ENDIF
+NEXT Number

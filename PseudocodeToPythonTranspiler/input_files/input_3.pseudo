@@ -1,0 +1,21 @@
+OUTPUT "Enter a number: "
+INPUT NumA
+
+OUTPUT "Enter another number: "
+INPUT NumB
+
+NumA ← REAL(NumA)
+NumB ← REAL(NumB)
+
+OUTPUT "Enter operator: "
+INPUT Operator
+
+
+CASE OF Operator
+  "add": OUTPUT NumA + NumB
+  "sub": OUTPUT NumA - NumB
+  "mul": OUTPUT NumA * NumB
+  "div": OUTPUT NumA / NumB
+  "mod": OUTPUT MOD(NumA, NumB)
+  OTHERWISE: OUTPUT "Unknown operator"
+ENDCASE

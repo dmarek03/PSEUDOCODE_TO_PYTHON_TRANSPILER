@@ -1,0 +1,14 @@
+FUNCTION Factorial(Num:INTEGER) RETURNS INTEGER
+    IF Num = 0 OR Num = 1
+      THEN
+        RETURN 1
+      ELSE
+        RETURN Num * Factorial(Num - 1)
+    ENDIF
+ENDFUNCTION
+
+// Awesome CASE statements are supported by Dudocode!
+INPUT Number
+Number ← INTEGER(Number)
+
+OUTPUT Factorial(Number)

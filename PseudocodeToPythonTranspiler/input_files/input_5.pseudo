@@ -1,0 +1,9 @@
+OPENFILE "inp.txt" FOR READ
+READFILE "inp.txt", Text
+CLOSEFILE "inp.txt"
+
+OUTPUT "Text from file: ", Text, "\n"
+
+OPENFILE "out.txt" FOR WRITE
+WRITEFILE "out.txt", Text
+CLOSEFILE "out.txt"
