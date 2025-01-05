@@ -326,6 +326,41 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
         match_code = f"{self.indent()}match {variable}:\n" + "\n".join(case_blocks)
         return match_code
 
+    def visitOutput(self, ctx):
+
+        values = ctx.value_list().expression()
+
+        formatted_values = []
+
+        for value in values:
+
+            if value.getText().startswith('"') and value.getText().endswith('"'):
+
+                formatted_values.append(value.getText().strip('"'))
+            else:
+
+                formatted_values.append(f"{{{self.visit(value)}}}")
+
+        if len(values) == 1:
+
+            python_code = f"print({values[0].getText()})"
+        else:
+
+            python_code = f'print(f"{"".join(formatted_values)}")'
+
+        return python_code
+
+    def visitInput(self, ctx):
+
+        var_name = ctx.IDENTIFIER().getText()
+
+        cast_map = {"INTEGER": "int", "REAL": "float", "BOOLEAN": "bool"}
+        cast = cast_map.get(self.declared_variables.get(var_name, ""), None)
+        if cast:
+            return f"{var_name} = {cast}(input('Enter data: '))"
+        else:
+            return f"{var_name} = input('Enter data: ')"
+
 
 def translate_pseudocode_to_python(input_file, output_file):
 
