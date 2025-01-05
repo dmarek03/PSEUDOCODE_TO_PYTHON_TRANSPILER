@@ -502,6 +502,29 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
         else:
             return f"def {func_name}({params}):\n{body}"
 
+    def visitParameter(self, ctx):
+
+        param_name = ctx.IDENTIFIER().getText()
+        return param_name
+
+    def visitFile_handling(self, ctx):
+        file_handler = (
+            ctx.STRING_LITERAL().getText().lower().replace('"', "").split(".")[0]
+        )
+        if ctx.OPENFILE():
+            file_mode = "w" if ctx.file_mode().getText() == "WRITE" else "r"
+
+            return f"{file_handler} = open({ctx.STRING_LITERAL()}, mode='{file_mode}')"
+
+        if ctx.READFILE():
+            return f"{ctx.IDENTIFIER()} = {file_handler}.read()"
+
+        if ctx.WRITEFILE():
+            return f"{file_handler}.write({ctx.IDENTIFIER()})"
+
+        if ctx.CLOSEFILE():
+            return f"{file_handler}.close()"
+
 
 
 
