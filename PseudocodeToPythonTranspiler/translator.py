@@ -413,6 +413,95 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
         condition = self.visit(ctx.condition())
         return f"while True:\n{body}\n{self.indent()}if {condition}:\n{self.indent()}    break"
 
+    def visitFunction_call(self, ctx):
+
+        if ctx.user_function_call():
+            func_name = ctx.user_function_call().IDENTIFIER().getText()
+            args = ", ".join(
+                [
+                    self.visit(arg)
+                    for arg in ctx.user_function_call().argument_list().expression()
+                ]
+            )
+            return f"{func_name}({args})"
+
+        if ctx.builtin_function_call():
+
+            return self.visit(ctx.builtin_function_call())
+
+    def visitBuiltin_function_call(self, ctx):
+
+        if ctx.IDENTIFIER():
+            var_name = ctx.IDENTIFIER().getText()
+
+        elif ctx.STRING_LITERAL():
+            var_name = ctx.STRING_LITERAL().getText()
+        elif ctx.CHAR_LITERAL():
+            var_name = ctx.CHAR_LITERAL().getText()
+        else:
+            var_name = None
+
+        if ctx.LENGTH():
+
+            return f"len({var_name})"
+        elif ctx.LCASE():
+
+            return f"{var_name}.lower()"
+        elif ctx.UCASE():
+
+            return f"{var_name}.upper()"
+        elif ctx.SUBSTRING():
+
+            start = ctx.NUMBER(0)
+            end = ctx.NUMBER(1)
+            step = ctx.NUMBER(2) if ctx.NUMBER(2) else None
+            slicing_expr = "[" + f"{start}:{end}" + (f":{step}" if step else "") + "]"
+
+            return f"{var_name}{slicing_expr}"
+        elif ctx.ROUND():
+            value = self.visit(ctx.expression(0))
+            places = self.visit(ctx.expression(1))
+            return f"round({value}, {places})"
+        elif ctx.RANDOM():
+            return "random.random()"
+
+    def visitProcedure_call(self, ctx):
+
+        proc_name = ctx.IDENTIFIER().getText()
+        args = ", ".join([self.visit(arg) for arg in ctx.argument_list().expression()])
+        return f"{proc_name}({args})"
+
+    def visitUser_function_definition(self, ctx):
+
+        func_name = ctx.IDENTIFIER().getText()
+
+        params_with_types = []
+        for param in ctx.parameter_list().parameter():
+            param_name = param.IDENTIFIER().getText()
+            param_type = self.cast_to_python_type(param.data_type().getText())
+            params_with_types.append(f"{param_name}: {param_type}")
+
+        params = ", ".join(params_with_types)
+
+        if ctx.RETURNS():
+            return_type = self.cast_to_python_type(ctx.data_type().getText())
+        else:
+            return_type = None
+
+        self.indent_level += 1
+        body = "\n".join(
+            [
+                self.indent() + self.visit(stmt)
+                for stmt in ctx.statement_list().statement()
+            ]
+        )
+        self.indent_level -= 1
+
+        if return_type:
+            return f"def {func_name}({params}) -> {return_type}:\n{body}"
+        else:
+            return f"def {func_name}({params}):\n{body}"
+
 
 
 
