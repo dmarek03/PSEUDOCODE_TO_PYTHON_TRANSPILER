@@ -11,6 +11,17 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
         self.indent_level = 0
         self.declared_variables = {}
 
+    @staticmethod
+    def cast_to_python_type(data_type: str) -> str:
+        type_mapping = {
+            "INTEGER": "int",
+            "REAL": "float",
+            "CHAR": "str",
+            "STRING": "str",
+            "BOOLEAN": "bool",
+        }
+        return type_mapping.get(data_type.upper(), "Any")
+
     def indent(self):
 
         return "    " * self.indent_level
@@ -71,6 +82,44 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
                 x = 0
 
         return f"{var_name} = [{x} for _ in range({elements_number})]"
+
+    def visitAssignment(self, ctx):
+
+        var_name = ctx.IDENTIFIER().getText()
+
+        if ctx.LBRACKET():
+
+            index = self.visit(ctx.expression(0))
+
+            value = self.visit(ctx.expression(1))
+
+            return f"{var_name}[{index}] = {value}"
+
+        value = self.visit(ctx.expression(0))
+
+        if self.declared_variables.get(var_name):
+
+            return f"{var_name} = {value}"
+        else:
+
+            self.declared_variables[var_name] = value
+            return f"{var_name} = {value}"
+
+    def visitCast(self, ctx):
+
+        value = self.visit(ctx.expression())
+
+        target_type = ctx.type_().getText()
+
+        if target_type == "REAL":
+            return f"float({value})"
+        elif target_type == "INTEGER":
+            return f"int({value})"
+        elif target_type == "STRING":
+            return f"str({value})"
+        else:
+
+            return f"#Unsupported cast: {ctx.getText()}"
 
 
 def translate_pseudocode_to_python(input_file, output_file):
