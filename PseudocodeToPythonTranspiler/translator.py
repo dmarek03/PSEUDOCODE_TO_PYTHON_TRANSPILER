@@ -205,6 +205,36 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
 
         return f"# Unsupported primary expression: {ctx.getText()} "
 
+    def visitTerm(self, ctx):
+
+        if ctx.IDENTIFIER():
+            return ctx.IDENTIFIER().getText()
+        elif ctx.literal():
+
+            return self.visit(ctx.literal())
+        elif ctx.function_call():
+            return self.visit(ctx.function_call())
+
+        return f"# Unsupported term: {ctx.getText()}"
+
+    def visitLiteral(self, ctx):
+
+        if ctx.NUMBER():
+            return ctx.NUMBER().getText()
+
+        elif ctx.REAL_NUMBER():
+            return ctx.REAL_NUMBER().getText()
+        elif ctx.STRING_LITERAL():
+            return ctx.STRING_LITERAL().getText()
+        elif ctx.CHAR_LITERAL():
+            return ctx.CHAR_LITERAL().getText()
+        elif ctx.TRUE():
+            return "True"
+        elif ctx.FALSE():
+            return "False"
+
+        return f"# Unsupported literal: {ctx.getText()}"
+
 
 def translate_pseudocode_to_python(input_file, output_file):
 
