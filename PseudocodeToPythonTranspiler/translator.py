@@ -526,8 +526,6 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
             return f"{file_handler}.close()"
 
 
-
-
 def translate_pseudocode_to_python(input_file, output_file):
 
     input_stream = FileStream("input_files/" + input_file, encoding="utf-8")
