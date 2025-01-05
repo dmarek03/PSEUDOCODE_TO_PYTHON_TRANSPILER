@@ -1,0 +1,7 @@
+inp = open("inp.txt", mode="r")
+Text = inp.read()
+inp.close()
+print(f"Text from file: {Text}\n")
+out = open("out.txt", mode="w")
+out.write(Text)
+out.close()
