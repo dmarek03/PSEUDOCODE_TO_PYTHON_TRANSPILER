@@ -1,0 +1,8 @@
+// Handling error in for loop
+INPUT NumRows
+FOR TO NumRows
+    FOR j ← 0 TO i
+        OUTPUT "i:", i
+    NEXT j
+    OUTPUT '\n'
+NEXT i
