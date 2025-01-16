@@ -145,10 +145,10 @@ primaryExpression
     : cast
     | term
     | file_handling
-    | IDENTIFIER LBRACKET expression RBRACKET
     | LPAREN expression RPAREN
     | 'DIV' LPAREN expression COMMA expression RPAREN
-    | 'MOD' LPAREN expression COMMA expression RPAREN;
+    | 'MOD' LPAREN expression COMMA expression RPAREN
+    | IDENTIFIER LBRACKET expression RBRACKET;
 
 
 
