@@ -1,7 +1,7 @@
-# PSEUDOCODE_TO_PYTHON_TRANSPILER
-# Pseudocode to Python Transpiler
+# PSEUDOCODE_TO_PYTHON_TRANSLATOR
+# Pseudocode to Python Translator
 
-Pseudocode to Python Transpiler is an innovative tool designed to automatically convert pseudocode into equivalent Python code. It facilitates rapid prototyping and testing of algorithms originally written in pseudocode, making programming more accessible and efficient.
+Pseudocode to Python Translator is an innovative tool designed to automatically convert pseudocode into equivalent Python code. It facilitates rapid prototyping and testing of algorithms originally written in pseudocode, making programming more accessible and efficient.
 
 ## Features
 
@@ -12,7 +12,7 @@ Pseudocode to Python Transpiler is an innovative tool designed to automatically 
 - **Extensibility**: Modular design allows for easy extension with new features and translations.
 
 ## Supported Structures
-The following pseudocode structures are supported by the transpiler:
+The following pseudocode structures are supported by the translator:
 
 ### Data Types
 - INTEGER
