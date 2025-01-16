@@ -327,26 +327,27 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
         return match_code
 
     def visitOutput(self, ctx):
-
         values = ctx.value_list().expression()
-
         formatted_values = []
+        is_interpolation_needed = False
 
         for value in values:
+            result = self.visit(value)
+
 
             if value.getText().startswith('"') and value.getText().endswith('"'):
-
                 formatted_values.append(value.getText().strip('"'))
             else:
+                is_interpolation_needed = True
+                formatted_values.append(f"{{{result}}}")
 
-                formatted_values.append(f"{{{self.visit(value)}}}")
+        if len(values) == 1 and not is_interpolation_needed:
 
-        if len(values) == 1:
-
-            python_code = f"print({values[0].getText()})"
+            python_code = f'print("{formatted_values[0]}")'
         else:
 
-            python_code = f'print(f"{"".join(formatted_values)}")'
+            joined_values = "".join(formatted_values)
+            python_code = f'print(f"{joined_values}")'
 
         return python_code
 
@@ -553,7 +554,7 @@ def translate_pseudocode_to_python(input_file, output_file):
 
 
 def main() -> None:
-    translate_pseudocode_to_python(input_file="test.pseudo", output_file="test.py")
+    translate_pseudocode_to_python(input_file="input_6.pseudo", output_file="output_6.py")
 
 
 if __name__ == "__main__":
