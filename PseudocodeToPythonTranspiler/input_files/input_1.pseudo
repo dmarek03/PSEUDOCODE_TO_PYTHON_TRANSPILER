@@ -1,3 +1,4 @@
+// Declaration and implementation of function calculating factorial of given number
 FUNCTION Factorial(Num:INTEGER) RETURNS INTEGER
     IF Num = 0 OR Num = 1
       THEN
@@ -7,7 +8,7 @@ FUNCTION Factorial(Num:INTEGER) RETURNS INTEGER
     ENDIF
 ENDFUNCTION
 
-// Awesome CASE statements are supported by Dudocode!
+// Getting number from user
 INPUT Number
 Number ← INTEGER(Number)
 
