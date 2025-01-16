@@ -1,4 +1,6 @@
 import black
+import argparse
+import subprocess
 from antlr4 import *
 from grammar_utils.PseudoCodeLexer import PseudoCodeLexer
 from grammar_utils.PseudoCodeParser import PseudoCodeParser
@@ -528,8 +530,7 @@ class PseudoCodeToPythonVisitor(PseudoCodeVisitor):
 
 
 def translate_pseudocode_to_python(input_file, output_file):
-
-    input_stream = FileStream("input_files/" + input_file, encoding="utf-8")
+    input_stream = FileStream('input_files/' + input_file, encoding="utf-8")
     lexer = PseudoCodeLexer(input_stream)
     token_stream = CommonTokenStream(lexer)
     parser = PseudoCodeParser(token_stream)
@@ -538,24 +539,48 @@ def translate_pseudocode_to_python(input_file, output_file):
     visitor = PseudoCodeToPythonVisitor()
     python_code = visitor.visit(tree)
 
-    with open("output_files/" + output_file, "w") as f:
+    with open('output_files/' + output_file, "w") as f:
         f.write(python_code)
 
     try:
         black.format_file_in_place(
-            src=black.Path("output_files/" + output_file),
+            src=black.Path('output_files/' + output_file),
             fast=False,
             mode=black.FileMode(),
             write_back=black.WriteBack.YES,
         )
-        print(f"Plik {output_file} został sformatowany za pomocą Black.")
+        print(f"File {output_file} has been formatted using Black.")
     except Exception as e:
-        print(f"Nie udało się sformatować pliku {output_file}: {e}")
+        print(f"Failed to format the file {output_file}: {e}")
 
 
-def main() -> None:
-    translate_pseudocode_to_python(input_file="input_6.pseudo", output_file="output_6.py")
+def main(input_file='test.pseudo', output_file='test.py', run_script=False):
+    if input_file and output_file:
+
+        translate_pseudocode_to_python(input_file=input_file, output_file=output_file)
+        if run_script:
+            try:
+                subprocess.run(["python", output_file], check=True)
+            except subprocess.CalledProcessError as e:
+                print(f"Error while executing the compiled script: {e}")
+    else:
+
+        parser = argparse.ArgumentParser(description="Translate pseudocode to Python.")
+        parser.add_argument("--file", required=True, help="Path to the input pseudocode script.")
+        parser.add_argument("--output", default="output_files/output.py", help="Path to save the compiled Python script.")
+        parser.add_argument("--run", action="store_true", help="Execute the compiled script after compilation.")
+
+        args = parser.parse_args()
+
+        translate_pseudocode_to_python(input_file=args.file, output_file=args.output)
+
+        if args.run:
+            try:
+                subprocess.run(["python", args.output], check=True)
+            except subprocess.CalledProcessError as e:
+                print(f"Error while executing the compiled script: {e}")
 
 
 if __name__ == "__main__":
     main()
+
